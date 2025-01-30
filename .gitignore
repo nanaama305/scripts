@@ -1,0 +1,4 @@
+spreadsheets/
+.venv/
+fake_data.py
+test.py
