@@ -13,7 +13,7 @@ SURVEILLANCE_FILE = 'spreadsheets/surveillance.xlsx'
 
 
 # Column name constant
-COLUMN_KEY = 'NAME OF FACILITY'
+COLUMN_KEY = 'Name of Facility'
 
 def is_similar_name(name1, name2, threshold=80):
     """
@@ -105,13 +105,19 @@ def remove_duplicates(similarity_threshold=75):
     df_registry, reg_sheet = results['registry']
     df_surveillance, surv_sheet = results['surveillance']
     
-    # Verify the key column exists in all files
+    # Verify the key column exists in all files (case-insensitive check)
     missing_columns = []
     for name, (df, _) in results.items():
-        if COLUMN_KEY not in df.columns:
+        # Case-insensitive column check
+        if not any(col.lower() == COLUMN_KEY.lower() for col in df.columns):
             missing_columns.append(name)
             print(f"\nColumns in {name} file:")
             print(df.columns.tolist())
+        else:
+            # Rename the column to our standard casing if it exists with different casing
+            for col in df.columns:
+                if col.lower() == COLUMN_KEY.lower() and col != COLUMN_KEY:
+                    df.rename(columns={col: COLUMN_KEY}, inplace=True)
     
     if missing_columns:
         print(f"\nError: '{COLUMN_KEY}' column not found in: {', '.join(missing_columns)}")
